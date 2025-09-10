@@ -44,10 +44,31 @@ services:
       AWS_SQS_LOAN_APPLICATIONS_CHANGES_QUEUE_URL: ${AWS_SQS_LOAN_APPLICATIONS_CHANGES_QUEUE_URL}
       AWS_SQS_LOAN_APPLICATIONS_VALIDATIONS_QUEUE_URL: ${AWS_SQS_LOAN_APPLICATIONS_VALIDATIONS_QUEUE_URL}
       AWS_SQS_LOAN_APPLICATIONS_VALIDATION_RESULTS_QUEUE_URL: ${AWS_SQS_LOAN_APPLICATIONS_VALIDATION_RESULTS_QUEUE_URL}
+      AWS_SQS_LOAN_APPLICATIONS_APPROVED_QUEUE_URL: ${AWS_SQS_LOAN_APPLICATIONS_APPROVED_QUEUE_URL}
     networks:
       - crediya-network
     depends_on:
       - mysql-loan-requests
+      - auth-service
+
+  reports-service:
+    build:
+      context: ../crediya-reports-service
+      dockerfile: deployment/Dockerfile
+    restart: always
+    ports:
+      - "8083:8080"
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
+      AWS_SQS_LOAN_APPLICATIONS_APPROVED_QUEUE_URL: ${AWS_SQS_LOAN_APPLICATIONS_APPROVED_QUEUE_URL}
+    networks:
+      - crediya-network
+    depends_on:
+      - loan-requests-service
       - auth-service
 
   mysql-auth:
